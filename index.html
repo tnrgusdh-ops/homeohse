@@ -1,78 +1,160 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" class="scroll-smooth">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>생성형 AI 소개</title>
+  <title>생성형 AI 입문 — 원페이지 학습</title>
+
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN (dark mode via class) -->
+  <script>tailwind = { config: { darkMode: 'class' } }</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <meta name="description" content="생성형 AI 입문자를 위한 원페이지 학습 사이트 — LLM, 프롬프트, 윤리 등 핵심 개념을 한눈에 학습하세요.">
   <style>
-    :root{--bg:#f7f9fc;--card:#ffffff;--accent:#28527a;--muted:#6b7280}
-    body{font-family:Inter, system-ui, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', Roboto, 'Helvetica Neue', Arial; background:var(--bg); margin:0;color:#0f172a}
-    header{background:linear-gradient(90deg,#e6f0ff, #f7fbff);padding:40px 16px;text-align:center}
-    .container{max-width:900px;margin:28px auto;padding:0 16px}
-    h1{color:var(--accent);margin:0 0 8px}
-    p.lead{color:var(--muted);margin:0 0 18px}
-    .card{background:var(--card);border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:0 4px 18px rgba(11,22,40,0.06)}
-    ul{margin:8px 0 0 20px}
-    footer{font-size:13px;color:var(--muted);text-align:center;margin:28px 0 60px}
-    a{color:#145d9c}
+    :root{--accent:#0f4c81}
+    html{font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Roboto', 'Helvetica Neue', Arial}
+    /* 3D button base */
+    .btn-3d{position:relative;display:inline-block;padding:0.75rem 1.4rem;border-radius:12px;font-weight:700;transform-style:preserve-3d;transition:transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s}
+    .btn-3d::after{content:'';position:absolute;inset:0;border-radius:12px;background:linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12));transform:translateZ(-8px) scale(1.02);z-index:-1;transition:transform .18s linear}
+    .btn-3d:active{transform:translateY(3px)}
+    .btn-3d:active::after{transform:translateZ(-6px) translateY(3px) scale(1.02)}
+
+    /* subtle focus outline for accessibility */
+    .focus-ring:focus{outline:none;box-shadow:0 0 0 4px rgba(59,130,246,0.18)}
+
+    /* dark/light demo backgrounds */
+    .hero-bg{background-image:linear-gradient(120deg, rgba(99,102,241,0.06), rgba(14,165,233,0.04));}
   </style>
 </head>
-<body>
-  <header>
-    <div class="container">
-      <h1>생성형 AI(Generative AI)란?</h1>
-      <p class="lead">사전 학습된 모델을 통해 텍스트, 이미지, 코드 등 새로운 콘텐츠를 생성하는 인공지능 기술입니다.</p>
-    </div>
+<body class="bg-gray-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+
+  <!-- Sticky navigation with blur -->
+  <header class="sticky top-0 z-50 backdrop-blur bg-white/70 dark:bg-slate-900/60 border-b border-white/70 dark:border-slate-800/60">
+    <nav class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <a href="#" class="text-xl font-extrabold text-[]" aria-label="홈">AI 입문</a>
+        <div class="hidden md:flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
+          <a href="#llm" class="hover:underline">LLM 원리</a>
+          <a href="#prompt" class="hover:underline">프롬프트</a>
+          <a href="#ethics" class="hover:underline">AI 윤리</a>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" class="focus-ring p-2 rounded-md bg-white/60 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/70 transition" aria-label="테마 토글">
+          <!-- Sun / Moon Icon -->
+          <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m8.66-11H20m-16 0H3.34M18.36 18.36l-.7-.7M6.34 6.34l-.7-.7M18.36 5.64l-.7.7M6.34 17.66l-.7.7M12 7a5 5 0 100 10 5 5 0 000-10z" />
+          </svg>
+        </button>
+        <a href="#llm" class="hidden md:inline-block text-sm px-3 py-1 rounded-md bg-gradient-to-r from-indigo-500 to-cyan-400 text-white">학습 시작</a>
+        <button id="mobile-menu" class="md:hidden p-2 rounded-md focus-ring">☰</button>
+      </div>
+    </nav>
   </header>
 
-  <main class="container">
-    <section class="card">
-      <h2>간단한 정의</h2>
-      <p>생성형 AI는 입력(프롬프트)을 받아 인간과 유사한 방식으로 새로운 출력을 만들어냅니다. 대표적인 예로 대화형 언어 모델, 이미지 생성 모델, 음악 생성 모델 등이 있습니다.</p>
+  <!-- Hero -->
+  <main class="max-w-6xl mx-auto px-6 pt-10">
+    <section class="hero-bg rounded-2xl p-8 md:p-12 flex flex-col-reverse md:flex-row items-center gap-8">
+      <div class="w-full md:w-1/2">
+        <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">AI의 미래를 학습하세요</h1>
+        <p class="mt-4 text-slate-600 dark:text-slate-300">대형 언어 모델(LLM)의 원리와 프롬프트 설계, 그리고 윤리까지 — 실습 중심으로 빠르게 이해할 수 있는 가이드입니다.</p>
+
+        <div class="mt-6 flex items-center gap-4">
+          <a href="#llm" class="btn-3d bg-gradient-to-r from-indigo-600 to-cyan-500 text-white shadow-lg focus-ring">시작하기</a>
+          <a href="#prompt" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-sm">자세히 보기</a>
+        </div>
+      </div>
+
+      <div class="w-full md:w-1/2">
+        <!-- decorative 3D card -->
+        <div class="relative mx-auto w-full max-w-md h-48 md:h-56 rounded-2xl bg-gradient-to-tr from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-2xl flex items-center justify-center">
+          <div class="transform -rotate-6 md:-rotate-3 scale-95">
+            <svg width="220" height="120" viewBox="0 0 220 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="10" width="200" height="100" rx="14" fill="url(#g)"/>
+              <defs>
+                <linearGradient id="g" x1="0" x2="1">
+                  <stop stop-color="#7c3aed" offset="0"/>
+                  <stop stop-color="#06b6d4" offset="1"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="card">
-      <h2>작동 원리(요약)</h2>
-      <ul>
-        <li>대규모 데이터로 사전 학습하여 패턴을 학습합니다.</li>
-        <li>트랜스포머 같은 신경망 구조가 문맥을 이해하고 다음 토큰을 예측합니다.</li>
-        <li>확률적 샘플링을 통해 다양한 출력을 생성할 수 있습니다.</li>
-      </ul>
+    <!-- Grid sections -->
+    <section class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- LLM 원리 -->
+      <article id="llm" class="group">
+        <div class="rounded-xl p-1 bg-transparent group-hover:bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-400 transition-all duration-300">
+          <div class="rounded-lg p-6 bg-white dark:bg-slate-800 min-h-[180px]">
+            <h3 class="text-lg font-semibold">LLM 원리</h3>
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">토큰화, 트랜스포머 구조, 자기회귀 예측 등 큰 모델이 어떻게 언어를 생성하는지 요약합니다.</p>
+            <p class="mt-4 text-sm font-medium text-indigo-600 dark:text-indigo-400">핵심 개념: 토큰화 · 어텐션 · 사전학습</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- 프롬프트 엔지니어링 -->
+      <article id="prompt" class="group">
+        <div class="rounded-xl p-1 bg-transparent group-hover:bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-all duration-300">
+          <div class="rounded-lg p-6 bg-white dark:bg-slate-800 min-h-[180px]">
+            <h3 class="text-lg font-semibold">프롬프트 엔지니어링</h3>
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">질문 설계, 컨텍스트 제공, 온도와 토큰 룰을 활용한 출력 조정 방법을 다룹니다.</p>
+            <p class="mt-4 text-sm font-medium text-emerald-600 dark:text-emerald-400">팁: 명확하고 단계적으로 지시하기</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- AI 윤리 -->
+      <article id="ethics" class="group">
+        <div class="rounded-xl p-1 bg-transparent group-hover:bg-gradient-to-r from-yellow-400 via-orange-400 to-rose-400 transition-all duration-300">
+          <div class="rounded-lg p-6 bg-white dark:bg-slate-800 min-h-[180px]">
+            <h3 class="text-lg font-semibold">AI 윤리</h3>
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">편향, 허위 정보, 개인정보와 저작권 문제, 사회적 영향과 책임 있는 사용 원칙을 포함합니다.</p>
+            <p class="mt-4 text-sm font-medium text-yellow-600 dark:text-yellow-400">중요: 검증과 투명성</p>
+          </div>
+        </div>
+      </article>
+
     </section>
 
-    <section class="card">
-      <h2>활용 사례</h2>
-      <ul>
-        <li>텍스트 생성: 문서, 요약, 번역, 코드 작성</li>
-        <li>이미지 생성: 디자인, 사진 합성, 컨셉 아트</li>
-        <li>콘텐츠 제작 자동화: 마케팅 카피, 대화형 챗봇</li>
-        <li>연구·교육: 데이터 증강, 아이디어 탐색</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>제한점 및 윤리</h2>
-      <ul>
-        <li>허위 정보(허상, hallucination) 생성 가능성</li>
-        <li>데이터 편향으로 인한 불공정한 결과</li>
-        <li>프라이버시 및 저작권 문제</li>
-        <li>책임 있는 사용과 검증이 중요합니다</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>더 알아보기</h2>
-      <p>자세한 자료는 아래 링크를 참고하세요.</p>
-      <ul>
-        <li><a href="https://openai.com/" target="_blank" rel="noopener">OpenAI</a></li>
-        <li><a href="https://huggingface.co/" target="_blank" rel="noopener">Hugging Face</a></li>
-        <li><a href="https://arxiv.org/" target="_blank" rel="noopener">arXiv 논문 검색</a></li>
-      </ul>
-    </section>
+    <!-- Footer -->
+    <footer class="mt-12 mb-16 text-center text-sm text-slate-500 dark:text-slate-400">
+      © 2025 생성형 AI 입문 • 교육용 자료 — 필요하면 콘텐츠 확장 및 예제 추가 가능합니다.
+    </footer>
   </main>
 
-  <footer>
-    생성형 AI 소개 페이지 — 간단한 개요입니다. 추가 수정이나 번역을 요청하세요.
-  </footer>
+  <script>
+    // Theme toggle with persistence
+    (function(){
+      const btn = document.getElementById('theme-toggle');
+      const icon = document.getElementById('theme-icon');
+      const root = document.documentElement;
+      const stored = localStorage.getItem('theme');
+      function setTheme(dark){
+        if(dark){ root.classList.add('dark'); icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />'; }
+        else{ root.classList.remove('dark'); icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m8.66-11H20m-16 0H3.34M18.36 18.36l-.7-.7M6.34 6.34l-.7-.7M18.36 5.64l-.7.7M6.34 17.66l-.7.7M12 7a5 5 0 100 10 5 5 0 000-10z" />'; }
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+      }
+      // init
+      if(stored === 'dark') setTheme(true);
+      else if(stored === 'light') setTheme(false);
+      else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme(true);
+
+      btn.addEventListener('click', ()=>{ setTheme(!document.documentElement.classList.contains('dark')); });
+    })();
+
+    // Mobile menu toggle (simple)
+    document.getElementById('mobile-menu').addEventListener('click', function(){
+      alert('모바일 메뉴: 현재 데모는 간단한 원페이지 레이아웃입니다. 필요하면 모바일 네비 추가 구현 가능합니다.');
+    });
+  </script>
 </body>
 </html>
