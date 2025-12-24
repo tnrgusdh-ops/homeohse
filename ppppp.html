@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 글로벌 여행 & 파리 라이프스타일 대시보드</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- CSS Variables & Theming --- */
+        :root {
+            --bg-color: #f4f7f6;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --text-primary: #2d3436;
+            --text-secondary: #636e72;
+            --accent-color: #0984e3;
+            --accent-hover: #74b9ff;
+            --border-color: #dfe6e9;
+            --shadow: 0 4px 6px rgba(0,0,0,0.05);
+            --chart-bg: #e1e1e1;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1e1e2f;
+            --sidebar-bg: #27293d;
+            --card-bg: #27293d;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-color: #e14eca;
+            --accent-hover: #ff8aeb;
+            --border-color: #444b6e;
+            --shadow: 0 4px 6px rgba(0,0,0,0.3);
+            --chart-bg: #444b6e;
+        }
+
+        /* --- Global Reset --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.3s, color 0.3s; }
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background-color: var(--bg-color); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
+        
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 4px; }
+
+        /* --- Layout --- */
+        .sidebar { width: 260px; background: var(--sidebar-bg); padding: 20px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); z-index: 10; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .content-scroll { flex: 1; overflow-y: auto; padding: 30px; scroll-behavior: smooth; }
+
+        /* --- Sidebar --- */
+        .logo { font-size: 1.4rem; font-weight: 800; margin-bottom: 30px; color: var(--accent-color); display: flex; align-items: center; gap: 10px; }
+        .menu-btn { background: none; border: none; width: 100%; text-align: left; padding: 12px 15px; border-radius: 10px; color: var(--text-secondary); cursor: pointer; font-weight: 600; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .menu-btn:hover, .menu-btn.active { background: var(--accent-color); color: #fff; transform: translateX(5px); }
+        .menu-category { font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); margin-top: 20px; margin-bottom: 10px; padding-left: 10px; font-weight: 700; opacity: 0.7; }
+
+        /* --- Header --- */
+        .header { height: 70px; background: var(--sidebar-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; flex-shrink: 0; }
+        .search-bar { position: relative; width: 300px; }
+        .search-bar input { width: 100%; padding: 10px 15px 10px 40px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-primary); outline: none; }
+        .search-bar i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        .theme-toggle { cursor: pointer; font-size: 1.2rem; padding: 10px; border-radius: 50%; background: var(--bg-color); color: var(--text-primary); border: 1px solid var(--border-color); }
+        
+        /* --- Progress Bar --- */
+        .progress-container { height: 4px; background: transparent; width: 100%; position: absolute; top: 0; left: 0; }
+        .progress-bar { height: 100%; background: var(--accent-color); width: 0%; transition: width 0.1s; }
+
+        /* --- Dashboard Grid --- */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(600px, 1fr)); gap: 25px; }
+        
+        /* --- Card Styles --- */
+        .card { background: var(--card-bg); border-radius: 15px; padding: 25px; box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .card-title { font-size: 1.2rem; font-weight: 700; color: var(--text-primary); }
+        .card-badge { font-size: 0.75rem; padding: 5px 10px; border-radius: 20px; background: var(--accent-color); color: white; font-weight: 600; }
+        
+        .card-content { color: var(--text-secondary); line-height: 1.6; font-size: 0.95rem; flex: 1; }
+        .read-more-btn { color: var(--accent-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-top: 15px; display: inline-flex; align-items: center; gap: 5px; }
+        .full-text { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-color); animation: fadeIn 0.5s; }
+        .full-text.open { display: block; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Tables --- */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
+        .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .data-table th { background: rgba(0,0,0,0.03); color: var(--text-primary); font-weight: 700; }
+        .data-table tr:hover { background: rgba(0,0,0,0.02); }
+
+        /* --- Charts (CSS Only) --- */
+        .chart-box { margin-top: 20px; }
+        .chart-row { margin-bottom: 15px; }
+        .chart-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; font-weight: 600; }
+        .chart-bar-bg { width: 100%; height: 12px; background: var(--chart-bg); border-radius: 6px; overflow: hidden; }
+        .chart-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-color), var(--accent-hover)); width: 0; border-radius: 6px; transition: width 1.5s ease-out; }
+
+        /* --- Interactive Elements --- */
+        .back-to-top { position: fixed; bottom: 30px; right: 30px; background: var(--accent-color); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; border: none; }
+        .back-to-top.visible { opacity: 1; pointer-events: all; }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .sidebar { display: none; } /* Mobile Menu omitted for brevity, simple hide */
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .header { padding: 0 15px; }
+            .search-bar { width: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-plane-departure"></i> 2025 INSIGHT
+        </div>
+        
+        <div class="menu-category">Trends & Global</div>
+        <button class="menu-btn active" onclick="filterContent('all')"><i class="fa-solid fa-layer-group"></i> 전체 보기</button>
+        <button class="menu-btn" onclick="filterContent('trend')"><i class="fa-solid fa-arrow-trend-up"></i> 여행 트렌드</button>
+        <button class="menu-btn" onclick="filterContent('global')"><i class="fa-solid fa-earth-americas"></i> 글로벌 이슈</button>
+        
+        <div class="menu-category">Paris Guide</div>
+        <button class="menu-btn" onclick="filterContent('art')"><i class="fa-solid fa-palette"></i> 예술 & 뮤지엄</button>
+        <button class="menu-btn" onclick="filterContent('food')"><i class="fa-solid fa-utensils"></i> 미식 & 맛집</button>
+        <button class="menu-btn" onclick="filterContent('spot')"><i class="fa-solid fa-map-location-dot"></i> 명소 & 쇼핑</button>
+        
+        <div class="menu-category">Economy & Life</div>
+        <button class="menu-btn" onclick="filterContent('money')"><i class="fa-solid fa-coins"></i> 경제 & 투자</button>
+        <button class="menu-btn" onclick="filterContent('life')"><i class="fa-solid fa-golf-ball-tee"></i> 라이프스타일</button>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="키워드 검색 (예: 오르세, 주식, 웰니스)...">
+            </div>
+            <button class="theme-toggle" id="themeToggle" title="테마 변경">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="content-scroll" id="contentArea">
+            <div class="dashboard-grid" id="gridContainer">
+                <!-- Content will be injected by JavaScript -->
+            </div>
+        </div>
+        
+        <button class="back-to-top" id="backToTop" onclick="scrollToTop()">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <script>
+        // --- Data Source (20 Pages) ---
+        const data = [
+            {
+                id: 1, category: 'trend', title: '2025 하이엔드 여행 트렌드', badge: 'Trend',
+                summary: '2025년 여행 시장은 개인의 취향을 깊게 반영하는 하이엔드 트렌드가 주도합니다. 비스포크 여행과 경험 중심의 서사가 핵심입니다.',
+                content: `2025년 여행 시장은 단순한 관광을 넘어 개인의 취향을 깊게 반영하는 하이엔드 트렌드가 주도하는 시기에 진입하고 있음. 일상의 한 부분으로 자리 잡은 여행은 의식주만큼 큰 비중을 차지하며 고급스럽고 맞춤화된 경험을 추구하는 방향으로 진화 중임. <br><br>
+                <ul style="padding-left:20px; line-height:1.8;">
+                    <li>과거의 획일적인 패키지 관행에서 벗어나 개인의 독특한 취향과 선호를 최우선으로 고려하는 비스포크 여행 서비스의 급격한 확산세임.</li>
+                    <li>여행을 일상과 분리된 이벤트가 아닌 삶의 질을 결정하는 핵심적인 의식주 요소 중 하나로 간주하며 품격을 높이려는 사회적 분위기임.</li>
+                    <li>익숙하게 알려진 관광 명소라 할지라도 개인의 시각에 따라 전혀 다르고 새로운 감동을 선사할 수 있는 하이엔드 방식의 여행 선호임.</li>
+                    <li>바쁜 현대인들에게 여행은 단순한 휴식을 넘어 자아를 찾고 일상의 피로를 해소하며 새로운 삶의 에너지를 충전하는 필수적인 과정임.</li>
+                    <li>하이엔드 여행의 핵심은 타인과의 차별화된 경험을 통해 평생 잊지 못할 자신만의 독창적이고 소중한 삶의 이야기를 만들어가는 것임.</li>
+                </ul>`
+            },
+            {
+                id: 2, category: 'trend', title: '웰니스 여행과 신체적 효용', badge: 'Wellness',
+                summary: '단순 휴식을 넘어 신체적 개선과 치유를 기대하는 정교한 웰니스 여행이 부상하고 있습니다.',
+                content: `2025년 여행의 핵심 키워드인 웰니스는 과거의 단순한 휴식을 넘어 구체적인 신체적 개선과 치유 효과를 기대하는 정교한 형태로 발전함.<br><br>
+                <strong>[주요 국가별 콘텐츠]</strong>
+                <table class="data-table">
+                    <tr><th>국가</th><th>프로그램</th><th>특징</th></tr>
+                    <tr><td>인도</td><td>아유르베다, 자연요법</td><td>전통 의학 기반 코칭</td></tr>
+                    <tr><td>사우디</td><td>사막 캠핑, 명상</td><td>지형 활용 심신 안정</td></tr>
+                    <tr><td>오스트리아</td><td>알프스 스파</td><td>미니멀한 정적 시설</td></tr>
+                    <tr><td>인도네시아</td><td>정글 요가</td><td>자연 속 충전</td></tr>
+                </table>
+                <br>자연과 건축물을 유기적으로 연결하여 투숙객이 머무는 동안 자연의 일부가 된 듯한 편안함을 느끼게 하는 바이오필릭 콘셉트 설계가 특징입니다.`
+            },
+            {
+                id: 3, category: 'trend', title: '자연 속 야간 관광과 천체 여행', badge: 'Nature',
+                summary: '태양 활동 극대기로 오로라, 개기일식 등 천체 관측 여행이 급부상하고 있습니다.',
+                content: `2025년에는 태양 활동이 절정에 이르면서 오로라와 개기일식 등을 관찰하는 천체 여행이 자연 경험의 새로운 대안으로 떠오르고 있음.<br><br>
+                <strong>[한국인 선호 천체 여행 유형]</strong>
+                <div class="chart-box">
+                    <div class="chart-row">
+                        <div class="chart-label"><span>밤하늘 촬영</span><span>54%</span></div>
+                        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 54%"></div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label"><span>천문대 방문</span><span>37%</span></div>
+                        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 37%"></div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label"><span>달빛 아래 잠자기</span><span>36%</span></div>
+                        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 36%"></div></div>
+                    </div>
+                </div>
+                <br>
+                인공적인 빛이 차단된 칠흑 같은 어둠 속에서 우주의 신비와 조우하는 경험은 현대인들에게 깊은 영감을 선사합니다.`
+            },
+            {
+                id: 4, category: 'trend', title: '상위 1% 하이엔드 비스포크', badge: 'Luxury',
+                summary: '전담 콘시어지와 버틀러 서비스를 결합한 초개인화된 럭셔리 여행 서비스가 주류로 부상합니다.',
+                content: `여행이 개인의 이야기를 담아내는 특별한 시간이 됨에 따라 상위 1% 고객을 겨냥한 맞춤형 하이엔드 서비스가 시장의 주류로 부상함.<br><br>
+                <table class="data-table">
+                    <tr><th>브랜드</th><th>특징</th></tr>
+                    <tr><td>제우스월드</td><td>전담 콘시어지, 프라이빗 제트</td></tr>
+                    <tr><td>샬레트래블</td><td>스위스/오로라 테마 전문</td></tr>
+                    <tr><td>르뮤제</td><td>아트 투어, 미쉐린 페어링</td></tr>
+                    <tr><td>투어비스</td><td>럭셔리 호텔 크레디트 혜택</td></tr>
+                </table>
+                <br>
+                <ul>
+                    <li>현지 돌발 상황에 즉각 대응하는 전문 버틀러 서비스 제공.</li>
+                    <li>개인의 관심사에 따라 세밀하게 조율된 맞춤형 일정 제안.</li>
+                    <li>글로벌 럭셔리 호텔 네트워크와 협력하여 특별한 환대 서비스 보장.</li>
+                </ul>`
+            },
+            {
+                id: 5, category: 'global', title: '2025 세계 여름 음악 축제', badge: 'Festival',
+                summary: '루체른, 잘츠부르크 등 유럽의 유서 깊은 도시에서 펼쳐지는 클래식과 재즈의 향연.',
+                content: `여름 시즌은 전 세계적으로 뜨거운 열기와 감동을 선사하는 다양한 음악 축제들이 집중되는 시기입니다.<br><br>
+                <strong>[주요 축제 일정]</strong>
+                <ul style="list-style-type: circle; padding-left: 20px; line-height: 1.6;">
+                    <li><strong>루체른 페스티벌 (8/12~9/14):</strong> 슈베르트·브루크너 미완성 교향곡 테마.</li>
+                    <li><strong>몽트뢰 재즈 페스티벌 (7/4~7/19):</strong> 샤카 칸 개막 공연, 무료 프로그램 다수.</li>
+                    <li><strong>잘츠부르크 페스티벌 (7/18~8/31):</strong> 100년 역사의 종합 예술 축제.</li>
+                    <li><strong>바이로이트 페스티벌 (7/24~8/27):</strong> 바그너 오페라 전용 상연.</li>
+                </ul>`
+            },
+            {
+                id: 6, category: 'global', title: '건축 거장 BIG의 철학', badge: 'Architecture',
+                summary: '비야르케 잉겔스 그룹(BIG)은 지속 가능성과 즐거움을 결합한 하이브리드 건축을 선보입니다.',
+                content: `덴마크 출신 건축가 비야르케 잉겔스가 이끄는 BIG는 "형태는 이야기를 따른다"는 명제 하에 혁신적인 건축 철학을 실천합니다.<br><br>
+                <strong>[대표 건축물]</strong>
+                <table class="data-table">
+                    <tr><th>건축물</th><th>위치</th><th>특징</th></tr>
+                    <tr><td>8 하우스</td><td>코펜하겐</td><td>8자 형태의 입체적 순환 동선</td></tr>
+                    <tr><td>비아 57 웨스트</td><td>맨해튼</td><td>피라미드 형태 삼각뿔 디자인</td></tr>
+                    <tr><td>아마게르 바케</td><td>코펜하겐</td><td>쓰레기 소각장 위 스키 슬로프</td></tr>
+                    <tr><td>더 트위스트</td><td>노르웨이</td><td>90도로 비틀어진 다리 겸 갤러리</td></tr>
+                </table>`
+            },
+            {
+                id: 7, category: 'global', title: '2025 오사카·간사이 엑스포', badge: 'Expo',
+                summary: "'생명이 빛나는 미래 사회 디자인'을 주제로 한 세계 최대의 목조 건축물 '그랜드 링'과 국가관.",
+                content: `158개국이 참여하여 첨단 기술과 창의적인 아이디어를 공유합니다. 상징인 '그랜드 링'은 세계 최대 규모의 목조건축물입니다.<br><br>
+                <strong>[주요 국가관]</strong>
+                <ul>
+                    <li><strong>한국관:</strong> AI 기술과 K-팝 활용, 목소리 음악 변환 체험.</li>
+                    <li><strong>미국관:</strong> NASA 로켓 시뮬레이션 및 달의 돌 전시.</li>
+                    <li><strong>프랑스관:</strong> LVMH 산하 브랜드 작품과 디올 의상 전시.</li>
+                    <li><strong>일본관:</strong> 바이오 가스 발전 및 탄소 재활용 기술.</li>
+                </ul>`
+            },
+            {
+                id: 8, category: 'art', title: '오르세 미술관 관람 꿀팁', badge: 'Paris Art',
+                summary: '옛 기차역을 개조한 인상주의의 보고. 뮤지엄패스와 목요일 야간 개장을 활용하세요.',
+                content: `파리 여행의 필수 코스인 오르세 미술관은 옛 기차역 건물을 개조한 독창적인 공간입니다.<br><br>
+                <strong>[핵심 팁]</strong>
+                <ul style="padding-left:20px;">
+                    <li>뮤지엄패스 소지자는 전용 라인 이용 가능 (대기 시간 단축).</li>
+                    <li>매주 목요일은 야간 개장으로 여유로운 관람 가능.</li>
+                    <li>매달 첫째 주 일요일 무료 관람 (인파 주의).</li>
+                    <li>5층은 인상주의 핵심 명작들이 집중된 구역.</li>
+                    <li>공식 홈페이지 사전 예약 필수.</li>
+                </ul>`
+            },
+            {
+                id: 9, category: 'art', title: '오르세 필수 명작 5선', badge: 'Paris Art',
+                summary: '고흐, 모네, 르누아르 등 인상주의 거장들의 대표작 5가지를 놓치지 마세요.',
+                content: `미술사적 가치가 높고 작가의 서사가 담긴 5가지 대표작입니다.<br><br>
+                <ol style="padding-left:20px; line-height:1.8;">
+                    <li><strong>반 고흐 <론강의 별이 빛나는 밤>:</strong> 강렬한 색채와 소용돌이치는 붓터치.</li>
+                    <li><strong>클로드 모네 <개양귀비 들판>:</strong> 빛의 변화에 따른 생동감 구현.</li>
+                    <li><strong>폴 고갱 <타히티의 여인들>:</strong> 이국적인 색채와 상징적 분위기.</li>
+                    <li><strong>르누아르 <물랭 드 라 갈레트의 무도회>:</strong> 파리의 일상적 행복감 묘사.</li>
+                    <li><strong>에드가 드가 <발레 수업>:</strong> 역동적인 움직임과 찰나의 포착.</li>
+                </ol>`
+            },
+            {
+                id: 10, category: 'art', title: '루브르 박물관 3시간 마스터', badge: 'Paris Art',
+                summary: '방대한 루브르를 효율적으로 관람하기 위한 드농-슐리-리슐리외 동선과 8대 대표작.',
+                content: `한 작품당 30초씩만 봐도 100일이 걸리는 루브르, 3시간 전략이 필요합니다.<br><br>
+                <strong>[필수 8대 대표작]</strong>
+                <table class="data-table">
+                    <tr><th>작품명</th><th>위치</th></tr>
+                    <tr><td>모나리자</td><td>드농 동 1층</td></tr>
+                    <tr><td>사모트라케의 니케</td><td>드농 동 계단</td></tr>
+                    <tr><td>밀로의 비너스</td><td>슐리 동 1층</td></tr>
+                    <tr><td>나폴레옹 대관식</td><td>드농 동 1층</td></tr>
+                    <tr><td>함무라비 법전</td><td>리슐리외 동</td></tr>
+                </table>
+                <br>수요일/금요일 야간 개장을 활용하면 인파를 피할 수 있습니다.`
+            },
+            {
+                id: 11, category: 'art', title: '퐁피두 폐쇄 & 숨겨진 미술관', badge: 'Paris Art',
+                summary: '퐁피두 센터 리노베이션 폐쇄 예정. 파리의 숨겨진 보물 같은 미술관 10곳을 소개합니다.',
+                content: `현대미술의 성지 퐁피두 센터는 2025년 말부터 5년간 폐쇄됩니다. 대안으로 다음 미술관들을 추천합니다.<br><br>
+                <strong>[숨겨진 미술관 TOP 5]</strong>
+                <ul>
+                    <li><strong>낭만주의 미술관:</strong> 몽마르뜨의 고요한 스튜디오.</li>
+                    <li><strong>달리 미술관:</strong> 초현실주의 세계.</li>
+                    <li><strong>자크마르-앙드레:</strong> 호화 저택을 개조한 미술관.</li>
+                    <li><strong>파리 장식 미술관:</strong> 루브르 옆 디자인 컬렉션.</li>
+                    <li><strong>프라고나르 향수 박물관:</strong> 향수 제조 과정 무료 관람.</li>
+                </ul>`
+            },
+            {
+                id: 12, category: 'spot', title: '파리의 심장 마레지구 가이드', badge: 'Paris Spot',
+                summary: '역사와 패션, 예술이 공존하는 마레지구의 완벽한 하루 코스.',
+                content: `12세기 늪지대에서 현재 트렌디한 편집샵의 중심지가 된 마레지구입니다.<br><br>
+                <ul>
+                    <li><strong>보주 광장:</strong> 300년 전 귀족들의 사교 장소, 브런치 명소.</li>
+                    <li><strong>메르시 (Merci):</strong> 전 세계적으로 유명한 편집샵.</li>
+                    <li><strong>유대인 타운:</strong> 호시에 거리의 유명 팔라펠 샌드위치.</li>
+                    <li><strong>생 자크 탑:</strong> 파리 시내 전경을 한눈에.</li>
+                    <li><strong>스트릿 아트 투어:</strong> 인베이더 등 숨겨진 예술 찾기.</li>
+                </ul>`
+            },
+            {
+                id: 13, category: 'food', title: '파리 가성비 미슐랭 1스타', badge: 'Gourmet',
+                summary: '39~58유로대로 즐기는 파리 미슐랭 1스타 런치 레스토랑 추천.',
+                content: `미슐랭 스타 레스토랑의 높은 가격이 부담스럽다면 런치를 공략하세요.<br><br>
+                <strong>[추천 리스트]</strong>
+                <table class="data-table">
+                    <tr><th>식당</th><th>런치 가격</th><th>특징</th></tr>
+                    <tr><td>Granite</td><td>€58</td><td>제로웨이스트, 1구</td></tr>
+                    <tr><td>Pantagruel</td><td>€45</td><td>오리 푸아그라 별미</td></tr>
+                    <tr><td>Auguste</td><td>€39</td><td>모던 요리, 7구</td></tr>
+                    <tr><td>Virtus</td><td>€39</td><td>혁신적 채소 요리</td></tr>
+                </table>`
+            },
+            {
+                id: 14, category: 'food', title: '직접 방문한 파리 현지 맛집', badge: 'Gourmet',
+                summary: '구글 평점과 현지 교민 추천을 바탕으로 엄선한 찐 맛집 리스트.',
+                content: `파리 여행 중 가성비와 맛을 모두 잡은 곳들입니다.<br><br>
+                <ul>
+                    <li><strong>샤틀레역 빵집:</strong> 바게트 샌드위치와 샐러드 (조식 추천).</li>
+                    <li><strong>시테섬 중식당:</strong> 새우 완탕 누들과 볶음밥.</li>
+                    <li><strong>로컬 스테이크 하우스:</strong> 1kg 토마호크 스테이크 가성비.</li>
+                    <li><strong>베트남 쌀국수:</strong> 비 오는 날 추천하는 깊은 육수.</li>
+                </ul>
+                <br>식당에서 '탭 워터(수돗물)'를 요청하면 음료 비용을 절감할 수 있습니다.`
+            },
+            {
+                id: 15, category: 'money', title: '2025 국내 주식시장 환골탈태', badge: 'Economy',
+                summary: '기업 이익 모멘텀과 통화 정책 완화로 KOSPI 수익률이 극적으로 회복됩니다.',
+                content: `2025년 상반기 국내 주식시장은 글로벌 상위권 수익률을 기록했습니다.<br><br>
+                <strong>[KOSPI 영업이익 전망]</strong>
+                <div class="chart-box">
+                    <div class="chart-row">
+                        <div class="chart-label"><span>22년 2Q (과거최대)</span><span>71.8조</span></div>
+                        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 90%"></div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label"><span>25년 3Q (전망)</span><span>79.5조</span></div>
+                        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 100%; background: var(--success);"></div></div>
+                    </div>
+                </div>
+                <br>한국은행의 금리 인하와 반도체 등 수출 기업의 호실적이 주요 원인입니다.`
+            },
+            {
+                id: 16, category: 'money', title: '소비 트렌드와 오프라인 상권', badge: 'Economy',
+                summary: '온라인 쇼핑 급증 속, 오프라인은 경험과 공간의 가치를 파는 곳으로 진화합니다.',
+                content: `오프라인 상권은 단순 판매를 넘어 '경험의 공간'으로 탈바꿈 중입니다.<br><br>
+                <strong>[온라인 쇼핑몰 거래액 급증]</strong>
+                <div class="chart-box">
+                    <div class="chart-row">
+                        <div class="chart-label"><span>2017</span><span>94조</span></div>
+                        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 36%"></div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label"><span>2020</span><span>158조</span></div>
+                        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 60%"></div></div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-label"><span>2024</span><span>259조</span></div>
+                        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 100%; background: var(--danger);"></div></div>
+                    </div>
+                </div>
+                <br>팝업스토어와 감각적인 인테리어로 유동인구를 유인하는 전략이 필수적입니다.`
+            },
+            {
+                id: 17, category: 'money', title: '해외 부동산 세금 및 신고 의무', badge: 'Tax',
+                summary: '해외 부동산 취득, 보유, 처분 단계별 국내 세법 신고 의무 완벽 정리.',
+                content: `해외 부동산 투자 시 국내 세법에 따른 신고 의무를 반드시 숙지해야 합니다.<br><br>
+                <table class="data-table">
+                    <tr><th>단계</th><th>의무 사항</th></tr>
+                    <tr><td>취득</td><td>2억 이상 시 취득 명세서 제출 (다음 해 6월)</td></tr>
+                    <tr><td>보유</td><td>임대 소득 종합소득세 합산 신고</td></tr>
+                    <tr><td>처분</td><td>양도일 말일부터 2개월 내 양도세 신고</td></tr>
+                </table>
+                <br>누락 시 과태료가 부과되며, 외국 납부 세액 공제를 통해 이중과세를 방지할 수 있습니다.`
+            },
+            {
+                id: 18, category: 'life', title: '워치스 앤 원더스 2025 신작', badge: 'Lifestyle',
+                summary: '제네바 시계 박람회에서 공개된 불가리, 랑에 운트 죄네 등 하이엔드 워치 신작.',
+                content: `세계 최대 시계 축제에서 기술력의 정점을 보여주는 신작들이 공개되었습니다.<br><br>
+                <ul>
+                    <li><strong>불가리:</strong> 두께 1.85mm 세계 최박형 투르비용.</li>
+                    <li><strong>랑에 운트 죄네:</strong> 미닛 리피터와 퍼페추얼 캘린더의 결합.</li>
+                    <li><strong>까르띠에:</strong> 1928년 컬트 시계의 현대적 재해석.</li>
+                    <li><strong>바쉐론 콘스탄틴:</strong> 세계에서 가장 복잡한 기계식 시계.</li>
+                </ul>`
+            },
+            {
+                id: 19, category: 'life', title: '골프 레슨 & 포천힐스 CC', badge: 'Golf',
+                summary: '전략적인 산악형 코스 포천힐스 CC 공략법과 비거리 향상을 위한 스윙 팁.',
+                content: `포천힐스 CC는 KLPGA 투어가 개최되는 명문 코스입니다.<br><br>
+                <strong>[코스 공략]</strong><br>
+                팰리스 코스 6번 홀은 '작은 바위섬'들이 있는 시그너처 홀로 정확한 티샷이 요구됩니다.<br><br>
+                <strong>[스윙 레슨]</strong><br>
+                아마추어의 '아웃-인' 궤도를 교정하려면 하체 리드 중심의 다운스윙이 필수입니다. 왼쪽 골반의 리드로 클럽을 수직 낙하시키세요.`
+            },
+            {
+                id: 20, category: 'life', title: '여름 호텔 빙수 & 취미', badge: 'Lifestyle',
+                summary: '스몰 럭셔리의 정점 호텔 빙수 트렌드와 여름철 추천 취미.',
+                content: `여름철 호텔 빙수는 스몰 럭셔리 트렌드의 중심입니다.<br><br>
+                <ul>
+                    <li><strong>애플망고 빙수:</strong> 우유 얼음과 고당도 망고의 조화.</li>
+                    <li><strong>샴페인 빙수:</strong> 분자 요리 기법을 도입한 이색 경험.</li>
+                    <li><strong>카이막 빙수:</strong> 튀르키예 전통의 고소한 맛.</li>
+                </ul>
+                <br>지친 여름, 가드닝이나 달리기 같은 새로운 취미로 일상의 활력을 찾으세요.`
+            }
+        ];
+
+        // --- Functions ---
+        
+        const gridContainer = document.getElementById('gridContainer');
+        const progressBar = document.getElementById('progressBar');
+        const backToTopBtn = document.getElementById('backToTop');
+        const searchInput = document.getElementById('searchInput');
+        const themeToggle = document.getElementById('themeToggle');
+
+        // Render Cards
+        function renderCards(filter = 'all', keyword = '') {
+            gridContainer.innerHTML = '';
+            
+            const filteredData = data.filter(item => {
+                const matchesCategory = filter === 'all' || item.category === filter;
+                const matchesSearch = item.title.includes(keyword) || item.summary.includes(keyword) || item.content.includes(keyword);
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filteredData.length === 0) {
+                gridContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--text-secondary);">검색 결과가 없습니다.</div>';
+                return;
+            }
+
+            filteredData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="card-title">${item.title}</span>
+                        <span class="card-badge">${item.badge}</span>
+                    </div>
+                    <div class="card-content">
+                        <p>${item.summary}</p>
+                        <button class="read-more-btn" onclick="toggleText(this)">
+                            <i class="fa-solid fa-book-open"></i> 상세 내용 보기
+                        </button>
+                        <div class="full-text">
+                            ${item.content}
+                        </div>
+                    </div>
+                `;
+                gridContainer.appendChild(card);
+            });
+            
+            // Re-trigger chart animations if any exist in the DOM
+            setTimeout(() => {
+                document.querySelectorAll('.chart-bar-fill').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0';
+                    setTimeout(() => bar.style.width = width, 100);
+                });
+            }, 100);
+        }
+
+        // Accordion Toggle
+        window.toggleText = function(btn) {
+            const contentDiv = btn.nextElementSibling;
+            contentDiv.classList.toggle('open');
+            if(contentDiv.classList.contains('open')){
+                btn.innerHTML = '<i class="fa-solid fa-book"></i> 접기';
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-book-open"></i> 상세 내용 보기';
+            }
+        };
+
+        // Filter Content
+        window.filterContent = function(category) {
+            // Update active button state
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            renderCards(category, searchInput.value);
+        };
+
+        // Search Listener
+        searchInput.addEventListener('input', (e) => {
+            const activeCategoryBtn = document.querySelector('.menu-btn.active');
+            // Extract category from onclick attribute is tricky, simplified assumption:
+            // We search within ALL items for simplicity or reset filter to ALL
+            renderCards('all', e.target.value); 
+            // Reset menu highlighting visually to 'All' if search is active
+            if(e.target.value.length > 0) {
+                document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.menu-btn[onclick="filterContent(\'all\')"]').classList.add('active');
+            }
+        });
+
+        // Theme Toggle
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            themeToggle.innerHTML = newTheme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // Load Saved Theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        }
+
+        // Scroll Progress & Back to Top
+        const contentArea = document.getElementById('contentArea');
+        contentArea.addEventListener('scroll', () => {
+            const scrollTop = contentArea.scrollTop;
+            const scrollHeight = contentArea.scrollHeight - contentArea.clientHeight;
+            const scrolled = (scrollTop / scrollHeight) * 100;
+            progressBar.style.width = scrolled + '%';
+
+            if (scrollTop > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+
+        window.scrollToTop = function() {
+            contentArea.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Initial Render
+        renderCards('all');
+
+    </script>
+</body>
+</html>
