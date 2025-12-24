@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>2025 Global Trends & Paris Guide</title>
+
+    <!-- Reveal.js CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/theme/black.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* --- 1. Glassmorphism & Background --- */
+        body {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glass Card Container */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            padding: 40px !important;
+            margin: 20px auto;
+            text-align: left;
+            color: #fff;
+        }
+
+        /* --- 2. Typography Constraints (Requested) --- */
+        /* Reveal.js overrides */
+        .reveal h2 {
+            font-size: 24pt !important;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            color: #fff;
+            text-transform: none;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 15px;
+        }
+
+        .reveal p, .reveal li, .reveal td, .reveal th, .reveal div {
+            font-size: 17pt !important;
+            line-height: 1.6;
+            color: #eee;
+        }
+        
+        /* Strong emphasis */
+        strong { color: #ffeaa7; font-weight: 600; }
+
+        /* --- 3. Components --- */
+        /* Tables */
+        .reveal table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px; 
+            font-size: 17pt;
+        }
+        .reveal th {
+            font-weight: bold;
+            text-align: left;
+            padding: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.5);
+        }
+        .reveal td {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        .reveal tr:hover td {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.01);
+        }
+
+        /* Charts */
+        .chart-bar-container {
+            margin: 15px 0;
+        }
+        .chart-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .chart-bar-bg {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            height: 20px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .chart-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            width: 0;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+        }
+        /* Reveal animation trigger class */
+        .present .chart-bar-fill {
+            /* Width will be set inline */
+        }
+
+        /* Lists */
+        .reveal ul {
+            margin-left: 0;
+            padding-left: 20px;
+        }
+        .reveal ul li {
+            list-style-type: none;
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .reveal ul li::before {
+            content: '\f054';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #ffeaa7;
+            font-size: 14pt;
+            top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Slide 1: Intro -->
+            <section>
+                <div class="glass-panel">
+                    <h2 style="text-align:center; border:none; font-size: 36pt !important; margin-bottom:50px;">2025 Global Trends<br>& Paris Guide</h2>
+                    <p style="text-align:center;">하이엔드 여행, 예술, 경제, 그리고 라이프스타일</p>
+                    <div style="text-align:center; margin-top:50px;">
+                        <i class="fa-solid fa-plane-departure" style="font-size:40px; color:#fff;"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 2: High-end Travel Trend -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 1. 2025년 하이엔드 여행 트렌드</h2>
+                    <p>2025년 여행 시장은 개인의 취향을 깊게 반영하는 <strong>하이엔드 트렌드</strong>가 주도합니다.</p>
+                    <ul>
+                        <li class="fragment">획일적인 패키지에서 벗어난 <strong>비스포크(Bespoke)</strong> 여행의 확산.</li>
+                        <li class="fragment">여행을 의식주만큼 중요한 삶의 핵심 요소로 인식.</li>
+                        <li class="fragment">익숙한 장소도 새롭게 탐험하는 하이엔드 방식 선호.</li>
+                        <li class="fragment">단순 휴식을 넘어 자아를 찾고 에너지를 충전하는 필수 과정.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 3: Wellness Travel (Table) -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 2. 정교해진 웰니스 여행</h2>
+                    <p>단순한 휴식을 넘어 신체적 개선과 치유를 기대하는 정교한 형태로 발전했습니다.</p>
+                    <table style="margin-top:20px;">
+                        <thead>
+                            <tr>
+                                <th>국가</th>
+                                <th>주요 프로그램</th>
+                                <th>특징</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>인도</td>
+                                <td>아유르베다</td>
+                                <td>호텔 협업 맞춤 식단</td>
+                            </tr>
+                            <tr>
+                                <td>사우디</td>
+                                <td>사막 캠핑</td>
+                                <td>지형 활용 심신 안정</td>
+                            </tr>
+                            <tr>
+                                <td>오스트리아</td>
+                                <td>알프스 스파</td>
+                                <td>미니멀한 정적 시설</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Slide 4: Night Tourism (Chart) -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 3. 자연 속 야간 관광과 천체 여행</h2>
+                    <p>태양 활동 극대기로 오로라와 개기일식 등 천체 관측이 부상하고 있습니다.</p>
+                    <div style="margin-top:30px;">
+                        <div class="chart-bar-container">
+                            <div class="chart-label"><span>밤하늘 촬영</span><span>54%</span></div>
+                            <div class="chart-bar-bg"><div class="chart-bar-fill fragment" style="width: 54%"></div></div>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-label"><span>천문대 방문</span><span>37%</span></div>
+                            <div class="chart-bar-bg"><div class="chart-bar-fill fragment" style="width: 37%"></div></div>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-label"><span>달빛 아래 잠자기</span><span>36%</span></div>
+                            <div class="chart-bar-bg"><div class="chart-bar-fill fragment" style="width: 36%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: Luxury Bespoke -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 4. 상위 1% 하이엔드 비스포크</h2>
+                    <p>전담 콘시어지와 버틀러 서비스를 결합한 초개인화 서비스가 주류입니다.</p>
+                    <ul>
+                        <li class="fragment"><strong>제우스월드:</strong> 전담 콘시어지, 프라이빗 제트 투어.</li>
+                        <li class="fragment"><strong>샬레트래블:</strong> 스위스/오로라 등 테마 전문 여행.</li>
+                        <li class="fragment"><strong>르뮤제:</strong> 미술 전문가와 함께하는 아트 투어.</li>
+                        <li class="fragment"><strong>투어비스:</strong> 럭셔리 호텔 크레디트 및 업그레이드.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 6: Music Festivals -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 5. 2025 세계 여름 음악 축제</h2>
+                    <p>유럽의 유서 깊은 도시들이 클래식과 재즈의 성지로 변모합니다.</p>
+                    <table>
+                        <thead>
+                            <tr><th>축제명</th><th>특징</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr class="fragment">
+                                <td>루체른 페스티벌</td>
+                                <td>슈베르트·브루크너 테마</td>
+                            </tr>
+                            <tr class="fragment">
+                                <td>몽트뢰 재즈</td>
+                                <td>600개 이상의 무료 프로그램</td>
+                            </tr>
+                            <tr class="fragment">
+                                <td>잘츠부르크</td>
+                                <td>100년 역사의 종합 예술 축제</td>
+                            </tr>
+                            <tr class="fragment">
+                                <td>바이로이트</td>
+                                <td>바그너 오페라 전용 상연</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Slide 7: Architecture BIG -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 6. 건축 거장 BIG의 철학</h2>
+                    <p>"형태는 이야기를 따른다" - 지속 가능성을 즐거움으로 승화시킵니다.</p>
+                    <ul>
+                        <li class="fragment"><strong>8 하우스 (코펜하겐):</strong> 8자 형태의 입체적 순환 동선.</li>
+                        <li class="fragment"><strong>비아 57 웨스트 (맨해튼):</strong> 피라미드 형태 삼각뿔 디자인.</li>
+                        <li class="fragment"><strong>아마게르 바케:</strong> 쓰레기 소각장 옥상의 스키 슬로프.</li>
+                        <li class="fragment"><strong>더 트위스트:</strong> 강 위를 90도로 비틀어 연결한 갤러리.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 8: Osaka Expo -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 7. 2025 오사카·간사이 엑스포</h2>
+                    <p>세계 최대 목조 건축물 '그랜드 링'과 158개국의 참여.</p>
+                    <ul>
+                        <li class="fragment"><strong>한국관:</strong> AI 기술과 K-팝 활용, 목소리 음악 변환.</li>
+                        <li class="fragment"><strong>미국관:</strong> NASA 로켓 발사 시뮬레이션, 달의 돌.</li>
+                        <li class="fragment"><strong>프랑스관:</strong> LVMH 브랜드 작품, 디올 의상 전시.</li>
+                        <li class="fragment"><strong>팁:</strong> 야간 티켓 활용 시 라이트업 관람 및 쾌적함.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 9: Orsay Tips -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 8. 오르세 미술관 관람 꿀팁</h2>
+                    <p>옛 기차역을 개조한 인상주의의 보고를 효율적으로 즐기는 법.</p>
+                    <ul>
+                        <li><strong>뮤지엄패스:</strong> 전용 라인으로 대기 시간 단축 필수.</li>
+                        <li><strong>목요일 야간 개장:</strong> 저렴하고 여유로운 관람 가능.</li>
+                        <li><strong>5층 우선 공략:</strong> 인상주의 핵심 명작 집중 구역.</li>
+                        <li><strong>포토존:</strong> 대형 시계 앞에서 파리 시내 전경 촬영.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 10: Orsay Masterpieces -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 9. 오르세 필수 명작 5선</h2>
+                    <p>반드시 감상해야 할 인상주의와 후기 인상주의 걸작.</p>
+                    <ol>
+                        <li class="fragment"><strong>고흐 [론강의 별이 빛나는 밤]:</strong> 강렬한 색채의 소용돌이.</li>
+                        <li class="fragment"><strong>모네 [개양귀비 들판]:</strong> 빛의 변화와 생동감.</li>
+                        <li class="fragment"><strong>고갱 [타히티의 여인들]:</strong> 이국적인 색채와 상징.</li>
+                        <li class="fragment"><strong>르누아르 [물랭 드 라 갈레트]:</strong> 파리의 행복한 일상.</li>
+                        <li class="fragment"><strong>드가 [발레 수업]:</strong> 역동적인 움직임의 찰나.</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Slide 11: Louvre Guide -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 10. 루브르 박물관 3시간 마스터</h2>
+                    <p>100일도 부족한 루브르, 3시간 핵심 동선 전략.</p>
+                    <table>
+                        <tr><th>작품</th><th>위치</th></tr>
+                        <tr><td>모나리자</td><td>드농 동 1층</td></tr>
+                        <tr><td>사모트라케의 니케</td><td>드농 동 계단</td></tr>
+                        <tr><td>밀로의 비너스</td><td>슐리 동 1층</td></tr>
+                        <tr><td>함무라비 법전</td><td>리슐리외 동</td></tr>
+                    </table>
+                    <p style="margin-top:15px; font-size:15pt !important;">* 수/금 야간 개장을 활용하면 인파를 피할 수 있습니다.</p>
+                </div>
+            </section>
+
+            <!-- Slide 12: Hidden Museums -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 11. 퐁피두 폐쇄 & 숨겨진 미술관</h2>
+                    <p>퐁피두 센터 리노베이션 폐쇄(2025 말~). 대안 명소 TOP 5.</p>
+                    <ul>
+                        <li class="fragment"><strong>낭만주의 미술관:</strong> 몽마르뜨의 고요한 스튜디오.</li>
+                        <li class="fragment"><strong>달리 미술관:</strong> 초현실주의 세계와 예술 철학.</li>
+                        <li class="fragment"><strong>자크마르-앙드레:</strong> 호화 저택을 개조한 미술관.</li>
+                        <li class="fragment"><strong>파리 장식 미술관:</strong> 루브르 옆 디자인 컬렉션.</li>
+                        <li class="fragment"><strong>프라고나르 향수:</strong> 향수 제조 과정 무료 관람.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 13: Marais District -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 12. 파리의 심장 마레지구</h2>
+                    <p>역사와 힙한 감성이 공존하는 하루 코스.</p>
+                    <ul>
+                        <li><strong>보주 광장:</strong> 300년 전 귀족들의 사교 장소, 피크닉.</li>
+                        <li><strong>메르시(Merci):</strong> 전 세계적 유명 편집샵 쇼핑.</li>
+                        <li><strong>유대인 타운:</strong> 팔라펠 샌드위치 맛집 탐방.</li>
+                        <li><strong>스트릿 아트:</strong> 인베이더 등 숨겨진 예술 찾기.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 14: Michelin Budget -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 13. 파리 가성비 미슐랭 1스타</h2>
+                    <p>런치 코스로 즐기는 합리적인 미식 (39€ ~ 58€).</p>
+                    <table>
+                        <thead>
+                            <tr><th>식당</th><th>가격</th><th>특징</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Granite</td><td>€58</td><td>제로웨이스트, 1구</td></tr>
+                            <tr><td>Pantagruel</td><td>€45</td><td>오리 푸아그라 별미</td></tr>
+                            <tr><td>Auguste</td><td>€39</td><td>7구, 모던한 인테리어</td></tr>
+                            <tr><td>Virtus</td><td>€39</td><td>12구, 혁신적 채소 요리</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Slide 15: Local Food -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 14. 직접 방문한 파리 현지 맛집</h2>
+                    <p>구글 평점과 현지 교민 추천 찐 맛집.</p>
+                    <ul>
+                        <li class="fragment"><strong>샤틀레역 빵집:</strong> 바게트 샌드위치 (가성비 조식).</li>
+                        <li class="fragment"><strong>시테섬 중식당:</strong> 새우 완탕 누들, 볶음밥.</li>
+                        <li class="fragment"><strong>스테이크 하우스:</strong> 1kg 토마호크 스테이크.</li>
+                        <li class="fragment"><strong>팁:</strong> '탭 워터(수돗물)' 요청 시 음료 비용 절감.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 16: Stock Market -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 15. 2025 국내 주식시장 전망</h2>
+                    <p>금리 인하와 기업 실적 호조로 인한 극적 반등.</p>
+                    <div style="margin-top:30px;">
+                        <div class="chart-bar-container">
+                            <div class="chart-label"><span>22년 2Q 영업이익</span><span>71.8조</span></div>
+                            <div class="chart-bar-bg"><div class="chart-bar-fill fragment" style="width: 90%"></div></div>
+                        </div>
+                        <div class="chart-bar-container">
+                            <div class="chart-label"><span>25년 3Q 전망</span><span>79.5조</span></div>
+                            <div class="chart-bar-bg"><div class="chart-bar-fill fragment" style="width: 100%; background: #00b894;"></div></div>
+                        </div>
+                    </div>
+                    <p style="margin-top:20px;">금융 위기 이후 최저 수준 PER로 저평가 매력 부각.</p>
+                </div>
+            </section>
+
+            <!-- Slide 17: Offline Retail -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 16. 소비 트렌드와 오프라인 상권</h2>
+                    <p>온라인 급증 속, 오프라인은 '경험'을 파는 공간으로 진화.</p>
+                    <ul>
+                        <li>온라인 쇼핑 거래액 폭발적 증가 (2024년 259조 원).</li>
+                        <li>단순 판매 공간은 공실률 급증, 양극화 심화.</li>
+                        <li><strong>해법:</strong> 팝업스토어, 감각적 인테리어, 체험형 공간.</li>
+                        <li>온-오프라인 시너지를 내는 옴니채널 전략 필수.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 18: Real Estate Tax -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 17. 해외 부동산 세금 가이드</h2>
+                    <p>취득부터 처분까지, 놓치기 쉬운 신고 의무.</p>
+                    <table>
+                        <thead><tr><th>단계</th><th>주요 의무</th></tr></thead>
+                        <tbody>
+                            <tr class="fragment">
+                                <td>취득</td>
+                                <td>2억 이상 시 다음 해 6월 취득 명세서 제출</td>
+                            </tr>
+                            <tr class="fragment">
+                                <td>보유</td>
+                                <td>임대 소득 발생 시 종합소득세 합산 신고</td>
+                            </tr>
+                            <tr class="fragment">
+                                <td>처분</td>
+                                <td>양도일 말일부터 2개월 내 신고 (비과세 주의)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Slide 19: Watches & Wonders -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 18. 워치스 앤 원더스 2025</h2>
+                    <p>제네바에서 공개된 하이엔드 워치 메이킹의 정점.</p>
+                    <ul>
+                        <li class="fragment"><strong>불가리:</strong> 1.85mm 세계 최박형 투르비용 신기록.</li>
+                        <li class="fragment"><strong>랑에 운트 죄네:</strong> 미닛 리피터와 퍼페추얼 캘린더.</li>
+                        <li class="fragment"><strong>까르띠에:</strong> 1928년 컬트 시계의 현대적 재해석.</li>
+                        <li class="fragment">역사적 모델 복원과 기술적 한계 돌파가 트렌드.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 20: Golf & Lifestyle -->
+            <section>
+                <div class="glass-panel">
+                    <h2>Page 19-20. 골프 & 여름 라이프스타일</h2>
+                    <p>전략적 플레이와 스몰 럭셔리의 즐거움.</p>
+                    <div style="display:flex; gap:20px;">
+                        <div style="flex:1;">
+                            <strong>포천힐스 CC</strong><br>
+                            - 산악형 전략 코스<br>
+                            - 하체 리드 다운스윙<br>
+                            - 체중 이동 필수
+                        </div>
+                        <div style="flex:1; border-left:1px solid rgba(255,255,255,0.3); padding-left:20px;">
+                            <strong>호텔 빙수</strong><br>
+                            - 애플망고, 샴페인 빙수<br>
+                            - 스몰 럭셔리 트렌드<br>
+                            - 새로운 취미(가드닝)
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            hash: true,
+            transition: 'convex', // none/fade/slide/convex/concave/zoom
+            
+            // 폰트 사이즈 강제 적용을 위한 설정
+            width: 1200,
+            height: 900,
+            margin: 0.1,
+            minScale: 0.2,
+            maxScale: 2.0
+        });
+    </script>
+</body>
+</html>
