@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Insight Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f0f2f5;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', system-ui, -apple-system, sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        body { background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 250px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem; z-index: 10; }
+        .logo { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-item { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 0.5rem; margin-bottom: 0.5rem; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); font-weight: 600; }
+        .nav-item i { width: 20px; text-align: center; }
+
+        /* Main Content */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Header */
+        header { height: 70px; background-color: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; }
+        .header-title h2 { font-size: 1.25rem; font-weight: 700; }
+        .header-actions { display: flex; align-items: center; gap: 1rem; }
+        .theme-toggle { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
+        .user-profile { width: 35px; height: 35px; background: linear-gradient(to right, var(--primary), var(--secondary)); border-radius: 50%; }
+
+        /* Dashboard Grid */
+        .dashboard-container { flex: 1; overflow-y: auto; padding: 2rem; display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; align-content: start; }
+        
+        .card { background-color: var(--bg-card); border-radius: 1rem; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid var(--border); display: flex; flex-direction: column; }
+        
+        /* Specific Card Sizes */
+        .col-span-12 { grid-column: span 12; }
+        .col-span-8 { grid-column: span 8; }
+        .col-span-6 { grid-column: span 6; }
+        .col-span-4 { grid-column: span 4; }
+        .col-span-3 { grid-column: span 3; }
+
+        @media (max-width: 1200px) { .col-span-3, .col-span-4 { grid-column: span 6; } }
+        @media (max-width: 768px) { .col-span-8, .col-span-6, .col-span-4, .col-span-3 { grid-column: span 12; } .sidebar { display: none; } }
+
+        /* Card Content Styling */
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .card-title { font-weight: 700; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; }
+        .card-value { font-size: 2rem; font-weight: 800; margin: 0.5rem 0; color: var(--primary); }
+        .card-desc { font-size: 0.85rem; color: var(--text-muted); }
+        
+        /* Stats Badge */
+        .badge { padding: 0.25rem 0.5rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; }
+        .badge.up { background-color: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .badge.neutral { background-color: rgba(99, 102, 241, 0.1); color: var(--primary); }
+
+        /* Visualizations */
+        .progress-track { width: 100%; height: 8px; background-color: var(--border); border-radius: 4px; overflow: hidden; margin-top: 1rem; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 1s ease; }
+
+        .pipeline-vis { display: flex; justify-content: space-between; align-items: center; margin: 2rem 0; position: relative; }
+        .pipeline-vis::before { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--border); z-index: 0; }
+        .step-node { width: 100px; height: 100px; background: var(--bg-card); border: 2px solid var(--primary); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; position: relative; cursor: pointer; transition: transform 0.2s; box-shadow: var(--shadow); }
+        .step-node:hover { transform: scale(1.1); background: var(--primary); color: white; }
+        .step-node span { font-size: 0.8rem; font-weight: 600; margin-top: 0.2rem; text-align: center; }
+
+        /* Interactive Elements */
+        .btn-action { padding: 0.5rem 1rem; background-color: var(--primary); color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 0.9rem; }
+        .btn-action:hover { opacity: 0.9; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 0.3rem 0.8rem; border-radius: 0.4rem; cursor: pointer; margin-top: 0.5rem; width: 100%; }
+
+        /* Detail Content (Collapsible) */
+        .detail-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; background-color: rgba(0,0,0,0.02); margin-top: 1rem; border-radius: 0.5rem; }
+        .detail-content.active { max-height: 1000px; padding: 1rem; border: 1px solid var(--border); overflow-y: auto; }
+        .detail-text { font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); }
+        .detail-text strong { color: var(--text-main); }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; }
+        
+        /* Tokenizer */
+        .token-display { display: flex; flex-wrap: wrap; gap: 0.3rem; padding: 1rem; border: 1px solid var(--border); border-radius: 0.5rem; min-height: 60px; margin-top: 1rem; }
+        .token-chip { padding: 0.2rem 0.4rem; border-radius: 0.3rem; font-family: monospace; font-size: 0.9rem; color: white; animation: popIn 0.3s; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Chat/Reasoning */
+        .chat-box { height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 0.5rem; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; background: rgba(0,0,0,0.01); }
+        .msg { max-width: 80%; padding: 0.8rem; border-radius: 0.8rem; font-size: 0.9rem; }
+        .msg-user { align-self: flex-end; background-color: var(--primary); color: white; border-bottom-right-radius: 0; }
+        .msg-ai { align-self: flex-start; background-color: var(--bg-card); border: 1px solid var(--border); border-bottom-left-radius: 0; }
+        .thought-process { font-size: 0.8rem; color: var(--text-muted); padding: 0.5rem; border-left: 2px solid var(--warning); background: rgba(245, 158, 11, 0.1); margin-bottom: 0.5rem; display: none; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-brain"></i> LLM Insight
+        </div>
+        <div class="nav-item active" onclick="filterDashboard('all')">
+            <i class="fa-solid fa-gauge-high"></i> 대시보드 개요
+        </div>
+        <div class="nav-item" onclick="filterDashboard('pretrain')">
+            <i class="fa-solid fa-database"></i> 사전 훈련 (Data)
+        </div>
+        <div class="nav-item" onclick="filterDashboard('sft')">
+            <i class="fa-solid fa-comments"></i> 지도 미세 조정 (SFT)
+        </div>
+        <div class="nav-item" onclick="filterDashboard('rl')">
+            <i class="fa-solid fa-microchip"></i> 강화 학습 (RL)
+        </div>
+        <div class="nav-item" onclick="filterDashboard('future')">
+            <i class="fa-solid fa-rocket"></i> 미래 전망
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header>
+            <div class="header-title">
+                <h2>LLM 심층 분석 모니터링</h2>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <div class="user-profile"></div>
+            </div>
+        </header>
+
+        <div class="dashboard-container">
+
+            <!-- Summary Stats -->
+            <div class="card col-span-3 category-all">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-server"></i> 데이터셋 규모</span>
+                    <span class="badge up">FineWeb</span>
+                </div>
+                <div class="card-value">44 TB</div>
+                <div class="card-desc">인터넷 전체 텍스트 압축 및 정제</div>
+                <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
+            </div>
+
+            <div class="card col-span-3 category-all">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-layer-group"></i> 학습 토큰</span>
+                    <span class="badge neutral">Training</span>
+                </div>
+                <div class="card-value">15 Trillion</div>
+                <div class="card-desc">15조 개의 토큰 시퀀스 학습</div>
+                <div class="progress-track"><div class="progress-fill" style="width: 85%"></div></div>
+            </div>
+
+            <div class="card col-span-3 category-all">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-microchip"></i> GPU 클러스터</span>
+                    <span class="badge up">H100</span>
+                </div>
+                <div class="card-value">100K+</div>
+                <div class="card-desc">데이터 센터 규모의 병렬 연산</div>
+                <div class="progress-track"><div class="progress-fill" style="width: 60%"></div></div>
+            </div>
+
+            <div class="card col-span-3 category-all">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-won-sign"></i> 훈련 비용</span>
+                    <span class="badge neutral">Est.</span>
+                </div>
+                <div class="card-value">$100M+</div>
+                <div class="card-desc">단일 프론티어 모델 훈련 비용</div>
+                <div class="progress-track"><div class="progress-fill" style="width: 90%"></div></div>
+            </div>
+
+            <!-- Pipeline Visual -->
+            <div class="card col-span-12 category-all">
+                <div class="card-header">
+                    <span class="card-title">LLM 구축 파이프라인 흐름도</span>
+                    <button class="btn-action" onclick="toggleDetail(this)">상세 설명 보기</button>
+                </div>
+                <div class="pipeline-vis">
+                    <div class="step-node" onclick="alert('데이터 수집 및 토큰화 단계')">
+                        <i class="fa-solid fa-globe fa-lg"></i>
+                        <span>Pre-training</span>
+                    </div>
+                    <div class="step-node" onclick="alert('질의응답 형식 학습 단계')">
+                        <i class="fa-solid fa-chalkboard-user fa-lg"></i>
+                        <span>SFT</span>
+                    </div>
+                    <div class="step-node" onclick="alert('보상 기반 시행착오 학습')">
+                        <i class="fa-solid fa-trophy fa-lg"></i>
+                        <span>RL</span>
+                    </div>
+                    <div class="step-node" onclick="alert('실제 사용자 환경')">
+                        <i class="fa-solid fa-robot fa-lg"></i>
+                        <span>Inference</span>
+                    </div>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-text">
+                        <h3>LLM의 정의 및 파이프라인 개요</h3>
+                        <p>거대 언어 모델(LLM)은 텍스트 상자 뒤에 숨겨진 거대한 예측 기계로, 사용자가 입력한 단어들에 반응하여 다음 단어를 생성하는 마법 같은 도구입니다. 안드레 파시(Andrej Karpathy)는 이 도구가 특정 분야에서는 매우 뛰어나지만 다른 분야에서는 한계가 명확하다는 점을 강조하며, 전체적인 구축 파이프라인에 대한 정신적 모델을 제공합니다.</p>
+                        <br>
+                        <ul>
+                            <li><strong>텍스트 기반 예측 모델로서의 정체성:</strong> 사용자 입력에 따라 다음에 올 단어들을 확률적으로 계산하고 생성하는 확률적 텍스트 생성 시스템으로서의 역할.</li>
+                            <li><strong>전체 구축 파이프라인의 단계별 구조:</strong> 사전 훈련, 지도 미세 조정, 강화 학습으로 이어지는 일련의 정교한 모델 제작 공정에 대한 포괄적 이해.</li>
+                            <li><strong>모델의 장점과 한계에 대한 균형 잡힌 인식:</strong> 특정 작업에서의 놀라운 마법 같은 성능과 더불어 주의해야 할 날카로운 단점들에 대한 비판적 시각 견지.</li>
+                            <li><strong>인간과 AI 대화의 본질적 의미 파악:</strong> 단순히 텍스트를 주고받는 것을 넘어 모델이 학습한 데이터의 통계적 패턴이 어떻게 발현되는지에 대한 통찰.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pre-training & Tokenizer -->
+            <div class="card col-span-6 category-pretrain category-all">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-filter"></i> 데이터 필터링 프로세스</span>
+                    <button class="btn-outline" onclick="toggleDetail(this)">자세히</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>단계</th><th>작업 내용</th><th>목적</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>URL 필터링</td><td>차단 목록 도메인 제거</td><td>스팸/유해 차단</td></tr>
+                        <tr><td>텍스트 추출</td><td>HTML 마크업 제거</td><td>순수 본문 확보</td></tr>
+                        <tr><td>PII 제거</td><td>개인정보 삭제</td><td>보안/윤리 강화</td></tr>
+                    </tbody>
+                </table>
+                <div class="detail-content">
+                    <div class="detail-text">
+                        <h3>1단계: 사전 훈련 - 데이터 수집 및 필터링</h3>
+                        <p>LLM 구축의 첫 번째이자 가장 거대한 단계는 인터넷 전체를 다운로드하여 처리하는 사전 훈련 단계입니다. 오픈AI, 구글 등은 'FineWeb'과 같은 거대한 데이터셋을 사용하여 인터넷의 방대한 정보를 모델 내부에 내재화합니다. 44테라바이트에 달하는 텍스트 데이터가 필터링을 거쳐 고밀도 정보로 압축됩니다.</p>
+                        <p>원시 데이터인 Common Crawl 데이터는 매우 거칠기 때문에 고품질의 데이터셋을 만들기 위해 URL 필터링, 텍스트 추출, 언어 필터링, 개인정보 제거 등의 복잡한 전처리 과정을 거칩니다. 이는 모델이 불필요한 노이즈를 배우지 않도록 하는 핵심적인 품질 관리 공정입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card col-span-6 category-pretrain category-all">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-barcode"></i> 토큰화(Tokenization) 시뮬레이터</span>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="tokenInput" placeholder="텍스트 입력 (예: Hello World)" style="flex:1; padding:0.5rem; border:1px solid var(--border); border-radius:0.3rem;">
+                    <button class="btn-action" onclick="simulateTokens()">변환</button>
+                </div>
+                <div class="token-display" id="tokenOutput">
+                    <span style="color:var(--text-muted); font-size:0.8rem;">여기에 토큰이 표시됩니다.</span>
+                </div>
+                <div class="detail-content" style="display:block; max-height:none; background:none; padding:0; margin-top:0.5rem;">
+                    <button class="btn-outline" onclick="toggleDetail(this)">원리 보기</button>
+                    <div class="detail-content">
+                        <div class="detail-text">
+                            <h3>토큰화의 원리</h3>
+                            <p>텍스트를 신경망에 입력하기 전, 텍스트를 1차원적인 기호 시퀀스로 변환하는 토큰화 과정이 필요합니다. 컴퓨터는 비트를 처리하지만, 효율성을 위해 'BPE(Byte Pair Encoding)' 알고리즘을 사용하여 자주 등장하는 바이트 쌍을 하나의 토큰으로 묶습니다.</p>
+                            <p>GPT-4는 약 10만 개의 고유 기호를 사용하여 텍스트를 효율적으로 압축합니다. 토큰화 과정에서 대문자와 공백 유무에 따라 전혀 다른 ID가 부여되며, FineWeb과 같은 데이터셋은 약 15조 개의 토큰 시퀀스로 변환되어 모델 학습의 원료로 사용됩니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SFT & Chat -->
+            <div class="card col-span-8 category-sft category-all">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-user-tie"></i> 지도 미세 조정 (SFT) - 비서 만들기</span>
+                    <button class="btn-outline" onclick="toggleDetail(this)">상세 내용</button>
+                </div>
+                <div style="display: flex; gap: 2rem;">
+                    <div style="flex:1;">
+                        <h4>사전 훈련 vs SFT</h4>
+                        <div class="progress-track" style="height: 20px; margin: 0.5rem 0; display:flex;">
+                            <div style="width: 80%; background: var(--text-muted); color:white; font-size:0.7rem; display:flex; align-items:center; justify-content:center;">사전 훈련 (지식 습득)</div>
+                            <div style="width: 20%; background: var(--primary); color:white; font-size:0.7rem; display:flex; align-items:center; justify-content:center;">SFT</div>
+                        </div>
+                        <p style="font-size:0.8rem; color:var(--text-muted);">SFT는 전체 과정의 극히 일부(시간/데이터)지만 모델의 성격을 결정함.</p>
+                    </div>
+                    <div style="flex:1; border-left:1px solid var(--border); padding-left:1rem;">
+                        <h4>대화 프로토콜</h4>
+                        <code style="background: #333; color: #10b981; padding: 0.5rem; display: block; border-radius: 0.3rem; font-size: 0.8rem;">
+                            [IM_START] user [IM_SEP] 질문 [IM_END]<br>
+                            [IM_START] assistant [IM_SEP] 답변...
+                        </code>
+                    </div>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-text">
+                        <h3>2단계: 지도 미세 조정(SFT)</h3>
+                        <p>베이스 모델을 유용한 '비서(Assistant)'로 바꾸기 위해 SFT 단계를 거칩니다. 인터넷 문서를 흉내 내는 대신 인간이 작성한 이상적인 대화 데이터를 학습시켜 질문에 답하는 방식을 가르칩니다. 이 단계는 사전 훈련에 비해 훨씬 적은 데이터와 시간(예: 몇 개월 대신 몇 시간)이 소요되지만, 모델의 페르소나를 결정하는 핵심 단계입니다.</p>
+                        <p>기업들은 전문 레이블러를 고용하여 도움됨, 진실함, 무해함(HHH) 원칙에 따라 이상적인 대화를 작성하게 합니다. 이를 통해 모델은 단순한 텍스트 생성을 넘어 전문가의 연구 과정과 사고 방식을 통계적으로 흉내 내는 비서 모델로 진화합니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card col-span-4 category-sft category-all">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-wrench"></i> 도구 사용 (Tool Use)</span>
+                </div>
+                <div class="chat-box" id="toolChat">
+                    <div class="msg msg-user">오늘 서울 날씨 어때?</div>
+                    <div class="msg msg-ai">
+                        <span style="color: #ef4444; font-family:monospace; font-size:0.8rem;">[SEARCH_START] 서울 날씨 [SEARCH_END]</span><br>
+                        <span style="color: var(--text-muted); font-size:0.8rem;">→ 외부 데이터 주입됨</span><br>
+                        오늘 서울은 맑고 25도입니다.
+                    </div>
+                </div>
+                <button class="btn-action" style="margin-top:0.5rem; width:100%;" onclick="alert('도구를 사용하면 모델의 환각(Hallucination)이 줄어들고 최신 정보를 반영할 수 있습니다.')">원리 확인</button>
+            </div>
+
+            <!-- RL & Reasoning -->
+            <div class="card col-span-12 category-rl category-all">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-lightbulb"></i> 강화 학습(RL) & 추론 모델 (Reasoning)</span>
+                    <button class="btn-action" onclick="simulateReasoning()">DeepSeek R1 / o1 시뮬레이션</button>
+                </div>
+                <div style="display:flex; gap: 2rem; margin-top:1rem;">
+                    <div style="flex:1;">
+                        <h4>일반 모델 (GPT-4)</h4>
+                        <div class="chat-box" style="height:150px;">
+                            <div class="msg msg-user">딸기(Strawberry)에 'r'이 몇 개?</div>
+                            <div class="msg msg-ai">2개입니다. (오답 가능성 높음)</div>
+                        </div>
+                    </div>
+                    <div style="flex:1;">
+                        <h4>추론 모델 (RL 적용)</h4>
+                        <div class="chat-box" style="height:150px;" id="reasoningChat">
+                            <div class="msg msg-user">딸기(Strawberry)에 'r'이 몇 개?</div>
+                            <div class="thought-process" id="thoughtBlock">
+                                [사고 과정]<br>
+                                1. 단어 분석: S-t-r-a-w-b-e-r-r-y<br>
+                                2. 개수 세기: r(3번째), r(8번째), r(9번째)<br>
+                                3. 검증: 총 3개 확인됨.
+                            </div>
+                            <div class="msg msg-ai" id="finalAnswer">3개입니다.</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-outline" onclick="toggleDetail(this)">심층 학습 원리 보기</button>
+                <div class="detail-content">
+                    <div class="detail-text">
+                        <h3>3단계: 강화 학습(RL)과 추론의 등장</h3>
+                        <p>기존의 SFT는 인간의 답변을 단순히 모방하는 데 그쳐, 모델이 스스로 최적의 사고 경로를 발견하기 어려웠습니다. 강화 학습(RL)은 모델이 다양한 시도를 하고 정답 여부에 따라 보상을 받음으로써 스스로 학습하게 하는 단계입니다. 이는 마치 학생이 교과서의 연습 문제를 스스로 풀며 정답지에 맞춰보며 실력을 키우는 과정과 유사합니다.</p>
+                        <p>최근 DeepSeek R1과 OpenAI의 o1 모델은 이러한 RL 과정을 통해 '사고(Thinking)' 능력을 극대화한 추론 모델입니다. 이들은 정답을 내놓기 전 내부적으로 긴 '사고의 사슬(CoT)'을 전개하며, 스스로 가설을 세우고 검증하며 오류를 수정합니다. 이를 통해 수학, 코딩 등 복잡한 논리 문제에서 비약적인 성능 향상을 이뤄냈습니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Future -->
+            <div class="card col-span-12 category-future">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-binoculars"></i> 미래: 멀티모달 & 에이전트</span>
+                </div>
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem; text-align:center;">
+                    <div style="padding:1rem; background: var(--bg-body); border-radius:0.5rem;">
+                        <i class="fa-solid fa-eye fa-2x" style="color:var(--primary); margin-bottom:0.5rem;"></i>
+                        <h4>멀티모달</h4>
+                        <p style="font-size:0.8rem; color:var(--text-muted);">텍스트, 오디오, 비디오 통합 이해</p>
+                    </div>
+                    <div style="padding:1rem; background: var(--bg-body); border-radius:0.5rem;">
+                        <i class="fa-solid fa-hand-pointer fa-2x" style="color:var(--secondary); margin-bottom:0.5rem;"></i>
+                        <h4>에이전트</h4>
+                        <p style="font-size:0.8rem; color:var(--text-muted);">컴퓨터 직접 조작 및 장기 과업 수행</p>
+                    </div>
+                    <div style="padding:1rem; background: var(--bg-body); border-radius:0.5rem;">
+                        <i class="fa-solid fa-shield-halved fa-2x" style="color:var(--success); margin-bottom:0.5rem;"></i>
+                        <h4>책임감 있는 AI</h4>
+                        <p style="font-size:0.8rem; color:var(--text-muted);">검증과 감독을 통한 안전한 활용</p>
+                    </div>
+                </div>
+                <button class="btn-outline" onclick="toggleDetail(this)">미래 전망 상세</button>
+                <div class="detail-content">
+                    <div class="detail-text">
+                        <h3>미래 기술 전망</h3>
+                        <p>미래의 LLM은 텍스트를 넘어 오디오, 이미지, 비디오를 직접 이해하고 생성하는 '멀티모달(Multimodal)' 모델로 진화할 것입니다. 또한, 단순한 답변을 넘어 사용자를 대신해 작업을 수행하는 '에이전트(Agents)'로서 컴퓨터를 직접 조작하는 기능을 갖추게 될 것입니다.</p>
+                        <p>하지만 LLM은 여전히 오류가 있을 수 있는 도구입니다. 사용자는 모델을 맹신하기보다 오류를 인식하고 책임감 있게 사용해야 합니다. 인간이 감독자로서 AI 에이전트를 지휘하는 새로운 협업 형태가 미래의 업무 환경이 될 것입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // 1. Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const icon = document.querySelector('.theme-toggle i');
+            
+            if (currentTheme === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                icon.className = 'fa-solid fa-moon';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fa-solid fa-sun';
+            }
+        }
+
+        // 2. Sidebar Filtering
+        function filterDashboard(category) {
+            const cards = document.querySelectorAll('.card');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            // Update Nav Active State
+            navItems.forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Filter Cards
+            cards.forEach(card => {
+                if (category === 'all' || card.classList.contains(`category-${category}`)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // 3. Detail Toggle (Accordion)
+        function toggleDetail(btn) {
+            // Find the closest .card then find .detail-content inside it
+            // Or usually next sibling
+            const card = btn.closest('.card');
+            const content = card.querySelector('.detail-content');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                if(btn.innerText.includes('접기')) btn.innerText = btn.innerText.replace('접기', '보기');
+            } else {
+                content.classList.add('active');
+                if(btn.innerText.includes('보기')) btn.innerText = btn.innerText.replace('보기', '접기');
+                else if(btn.innerText.includes('자세히')) btn.innerText = '접기';
+            }
+        }
+
+        // 4. Tokenizer Simulation
+        function simulateTokens() {
+            const input = document.getElementById('tokenInput').value || "LLM Dashboard";
+            const output = document.getElementById('tokenOutput');
+            output.innerHTML = '';
+            
+            const words = input.split(/(\s+)/); // Split keeping delimiters
+            const colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
+
+            words.forEach(word => {
+                if (word.length === 0) return;
+                const span = document.createElement('span');
+                span.className = 'token-chip';
+                span.innerText = word.replace(/\s/g, 'Ġ'); // Visual space
+                span.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                span.title = `ID: ${Math.floor(Math.random() * 50000)}`;
+                output.appendChild(span);
+            });
+        }
+
+        // 5. Reasoning Simulation
+        function simulateReasoning() {
+            const thought = document.getElementById('thoughtBlock');
+            const answer = document.getElementById('finalAnswer');
+            
+            thought.style.display = 'none';
+            answer.style.display = 'none';
+            
+            // Simulate delay
+            setTimeout(() => {
+                thought.style.display = 'block';
+                // Scroll to bottom
+                document.getElementById('reasoningChat').scrollTop = document.getElementById('reasoningChat').scrollHeight;
+                
+                setTimeout(() => {
+                    answer.style.display = 'block';
+                    document.getElementById('reasoningChat').scrollTop = document.getElementById('reasoningChat').scrollHeight;
+                }, 1500);
+            }, 500);
+        }
+
+        // Init
+        simulateTokens();
+    </script>
+</body>
+</html>
